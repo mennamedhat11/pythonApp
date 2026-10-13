@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // غيّري القيم دي حسب بياناتك
-        DOCKERHUB_USER = 'your-dockerhub-username'
+        DOCKERHUB_USER = 'mennamedhat123'
         IMAGE_NAME     = "${DOCKERHUB_USER}/node-app"
         IMAGE_TAG      = "${env.BUILD_NUMBER}"
         CONTAINER_NAME = 'node-app'
@@ -29,7 +29,7 @@ pipeline {
         stage('Push Image') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "${DOCKERHUB_CREDS}",
+                    credentialsId: "${Docker}",
                     usernameVariable: 'DH_USER',
                     passwordVariable: 'DH_PASS')]) {
                     sh """
