@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_USER  = 'mennamedhat123'
-        IMAGE_NAME      = "${DOCKERHUB_USER}/python-app"
+        IMAGE_NAME      = "${DOCKERHUB_USER}/node-app"
         DOCKERHUB_CREDS = 'Docker'
     }
 
@@ -20,17 +20,17 @@ pipeline {
                     def branch = env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceAll('origin/', '')
 
                     if (branch == 'prod') {
-                        env.APP_ENV        = 'prod'
-                        env.HOST_PORT      = '5002'
+                        env.APP_ENV   = 'prod'
+                        env.HOST_PORT = '3002'
                     } else if (branch == 'stg') {
-                        env.APP_ENV        = 'stg'
-                        env.HOST_PORT      = '5001'
+                        env.APP_ENV   = 'stg'
+                        env.HOST_PORT = '3001'
                     } else {
-                        env.APP_ENV        = 'dev'
-                        env.HOST_PORT      = '5000'
+                        env.APP_ENV   = 'dev'
+                        env.HOST_PORT = '3000'
                     }
 
-                    env.CONTAINER_NAME = "python-app-${env.APP_ENV}"
+                    env.CONTAINER_NAME = "node-app-${env.APP_ENV}"
                     env.IMAGE_TAG      = "${env.APP_ENV}-${env.BUILD_NUMBER}"
                     env.LATEST_TAG     = "${env.APP_ENV}-latest"
 
@@ -70,7 +70,7 @@ pipeline {
                     docker run -d --name ${CONTAINER_NAME} \
                         --restart unless-stopped \
                         -e APP_ENV=${APP_ENV} \
-                        -p ${HOST_PORT}:5000 \
+                        -p ${HOST_PORT}:3000 \
                         ${IMAGE_NAME}:${IMAGE_TAG}
                 """
             }
@@ -80,15 +80,15 @@ pipeline {
             steps {
                 sh """
                     sleep 5
-                    docker exec ${CONTAINER_NAME} python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:5000/health').read())"
+                    docker exec ${CONTAINER_NAME} wget -qO- http://127.0.0.1:3000/health
                 """
             }
         }
     }
 
     post {
-        success { echo "Python app (${env.APP_ENV}) pipeline finished successfully" }
-        failure { echo "Python app (${env.APP_ENV}) pipeline failed" }
+        success { echo "Node app (${env.APP_ENV}) pipeline finished successfully" }
+        failure { echo "Node app (${env.APP_ENV}) pipeline failed" }
         always  { sh 'docker image prune -f || true' }
     }
 }
